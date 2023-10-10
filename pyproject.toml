@@ -12,11 +12,13 @@ version = "v0.1"
 
 [tool.poetry.dependencies]
 pytest = ">=6.1.0"
-python = "^3.9.0"
-pinecone-client = "^2.2.4"
-langchain = "^0.0.311"
-huggingface-hub = "^0.17.3"
-openai = "^0.28.1"
+python = "3.11.0"
+openai = {extras = ["embeddings"], version = "^0.28.1"}
+pandas = "^2.1.1"
+matplotlib = "^3.8.0"
+pathlib = "^1.0.1"
+plotly = "^5.17.0"
+scipy = "^1.11.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.0"
