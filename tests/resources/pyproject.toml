@@ -3,29 +3,14 @@ authors = ["alex-treebeard <alex@treebeard.io>"]
 description = ""
 homepage = "https://github.com/treebeardtech/nbwrite"
 license = "Apache-2.0"
-name = "nbwrite"
-packages = [
-  {include = "nbwrite", from = "src"},
-]
-readme = "README.md"
+name = "test"
 version = "v0.1"
 
 [tool.poetry.dependencies]
 pytest = ">=6.1.0"
 python = "^3.9.0"
-pinecone-client = "^2.2.4"
-langchain = "^0.0.311"
-huggingface-hub = "^0.17.3"
-openai = "^0.28.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.1.0"
-pre-commit = "^2.8.2"
-pytest-cov = "^2.10.1"
-pytest-xdist = "^2.1.0"
-virtualenv = "^20.1.0"
-setuptools = ">65.0.0"
-typing-extensions = "^4.7.1"
 nbmake = "^1.4.5"
 
 [build-system]
