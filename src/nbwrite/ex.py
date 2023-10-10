@@ -18,3 +18,18 @@ from langchain import HuggingFaceHub, LLMChain
 llm_chain = LLMChain(prompt=prompt, llm=davinci)
 
 print(llm_chain.run(question))
+
+import pinecone
+
+pinecone.init(api_key=os.environ["PINECONE_API_KEY"], environment="gcp-starter")
+index = pinecone.Index("nbwrite")
+
+index.upsert(
+    [
+        ("A", [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]),
+        ("B", [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]),
+        ("C", [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]),
+        ("D", [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]),
+        ("E", [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]),
+    ]
+)
