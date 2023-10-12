@@ -2,6 +2,8 @@ from pathlib import Path
 
 import click
 
+import nbwrite.writer as writer
+
 
 @click.group()
 def cli():
@@ -16,10 +18,13 @@ def index():
 
 
 @cli.command()
-@click.argument("notebook", type=click.Path(exists=True))
-def complete(path: Path):
+@click.argument(
+    "notebook", type=click.Path(exists=True, path_type=Path, dir_okay=False)
+)
+def complete(notebook: Path):
     """Write demo notebooks based on prompts in the notebook and the index"""
     click.echo("Searching index...")
+    writer.complete(notebook)
 
 
 if __name__ == "__main__":

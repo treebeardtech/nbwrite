@@ -8,3 +8,10 @@ def test_index():
     result = runner.invoke(cli, ["index"])
     assert result.exit_code == 0
     assert result.output == "Hello, world!\nBuilding index...\n"
+
+
+def test_complete():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["complete", "tests/resources/demo.ipynb"])
+    assert result.exit_code == 0
+    assert result.output == "Hello, world!\nSearching index...\n"
