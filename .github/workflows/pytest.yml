@@ -4,18 +4,18 @@ on:
     - cron: 0 13 * * 1 # Every Monday at 1PM UTC (9AM EST)
   pull_request:
 # test in containerised and OS environments
-jobs:
-  test-container:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v2
-      - run: npm install -g @devcontainers/cli@v0.30.0
-      - run: devcontainer up --workspace-folder=.
-      - run: devcontainer exec --workspace-folder=. poetry run pre-commit run --verbose --all-files
-      - run: devcontainer exec --workspace-folder=. poetry run pytest --cov-report=xml --cov=src
-      - uses: codecov/codecov-action@v1
-        with:
-          file: coverage.xml
+# jobs:
+#   test-container:
+#     runs-on: ubuntu-22.04
+#     steps:
+#       - uses: actions/checkout@v2
+#       - run: npm install -g @devcontainers/cli@v0.30.0
+#       - run: devcontainer up --workspace-folder=.
+#       - run: devcontainer exec --workspace-folder=. poetry run pre-commit run --verbose --all-files
+#       - run: devcontainer exec --workspace-folder=. poetry run pytest --cov-report=xml --cov=src
+#       - uses: codecov/codecov-action@v1
+#         with:
+#           file: coverage.xml
   pytest:
       strategy:
         fail-fast: false
