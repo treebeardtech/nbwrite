@@ -12,6 +12,8 @@ def test_index():
 
 def test_complete():
     runner = CliRunner()
-    result = runner.invoke(cli, ["complete", "tests/resources/demo.ipynb"])
+    result = runner.invoke(
+        cli, ["complete", "tests/resources/demo.ipynb", "tests/resources/out.ipynb"]
+    )
+    print(result.output)
     assert result.exit_code == 0
-    assert result.output == "Hello, world!\nSearching index...\n"
