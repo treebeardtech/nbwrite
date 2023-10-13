@@ -36,21 +36,14 @@ def complete(path: Path, out_path: Path):
     prompt = PromptTemplate.from_template(
         "Write an executable Python example in under 50 lines that implements '{task}'.\n\nUse this relevant dependency:\n\n{code}"
     )
-    messages = [HumanMessage(content=prompt.format(task=task, code=code))]
-    code_out = llm.predict_messages(messages)
 
-    description_prompt = PromptTemplate.from_template(
-        "Write a snippet of markdown describing how the following code works to achieve the goal of {task}.\n\n{code}?"
-    )
-    messages = [
-        HumanMessage(content=description_prompt.format(task=task, code=code_out))
-    ]
-    description_out = llm.predict_messages(messages)
+    chain = prompt | llm
+    code_out = chain.invoke({"task": task, "code": code})
     title = "AI!"
-    sources = [code_out.content]
+    sources = [code_out]
     nb = new_notebook()
     # nb.metadata = metadata
-    nb.cells.append(new_markdown_cell(f"# {title}\n\n{description_out.content}"))
+    nb.cells.append(new_markdown_cell(f"# {title}"))
     for src in sources:
         nb.cells.append(new_code_cell(src))
 
