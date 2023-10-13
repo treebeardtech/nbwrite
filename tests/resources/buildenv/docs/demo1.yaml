@@ -1,0 +1,10 @@
+title: HTTP API
+description: How to use the API to start a simulation then query the state
+steps:
+  - Use the PUT endpoint to define a segment
+  - Use the POST endpoint to start a simulation
+  - Use the GET endpoint to query the state of the simulation
+assertions:
+  - check that the simulation completed successfully
+components:
+  - frontier_ct_definition.ComputationalTwin
