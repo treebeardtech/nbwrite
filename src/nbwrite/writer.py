@@ -6,7 +6,8 @@ from typing import Any, Dict, List
 
 from langchain.callbacks import wandb_tracing_enabled as _
 from langchain.llms.openai import OpenAI
-from langchain.prompts import PromptTemplate
+from langchain.prompts import ChatPromptTemplate, PromptTemplate
+from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessage
 from langchain.schema import HumanMessage
 from nbformat import write
 from nbformat.v4 import (
@@ -23,18 +24,32 @@ lib = importlib.util.find_spec("nbmake")
 code_root = Path(lib.submodule_search_locations._path[0])  # type: ignore
 code = (code_root / "nb_run.py").read_text()
 
+SYSTEM_PROMPT = """
+You are a Python developer implementing example code (under 50 lines) that runs without errors.
+"""
+
+template_string = """
+
+task: '{task}'.
+
+nbmake/nb_run.py: {code}"
+"""
+
 
 def complete(path: Path, out_path: Path):
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
     temperature = 0.7
     llm = OpenAI(temperature=temperature)
-    task = (
-        "use nbmake's NotebookRun class to test 'res/x.ipynb' from a Python application"
-    )
+    task = "Create a hello world notebook 'res/x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
-    prompt = PromptTemplate.from_template(
-        "Write an executable Python example in under 50 lines that implements '{task}'.\n\nUse this relevant dependency:\n\n{code}"
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            # SystemMessage(
+            #     content=(SYSTEM_PROMPT)
+            # ),
+            HumanMessagePromptTemplate.from_template(template_string),
+        ]
     )
 
     chain = prompt | llm
