@@ -25,7 +25,13 @@ code_root = Path(lib.submodule_search_locations._path[0])  # type: ignore
 code = (code_root / "nb_run.py").read_text()
 
 SYSTEM_PROMPT = """
-You are a Python developer implementing example code (under 50 lines) that runs without errors.
+You are a python programmer
+
+Respond using only Python code
+Do not use comments
+Do not use quotes
+Do not explain anything
+Write 20 lines max per response
 """
 
 template_string = """
@@ -39,15 +45,13 @@ nbmake/nb_run.py: {code}"
 def complete(path: Path, out_path: Path):
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
-    temperature = 0.7
+    temperature = 0.5
     llm = OpenAI(temperature=temperature)
     task = "Create a hello world notebook 'res/x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            # SystemMessage(
-            #     content=(SYSTEM_PROMPT)
-            # ),
+            SystemMessage(content=(SYSTEM_PROMPT)),
             HumanMessagePromptTemplate.from_template(template_string),
         ]
     )
