@@ -15,6 +15,10 @@ def cli():
 def index():
     """Build an index based on the python environment."""
     click.echo("Building index...")
+    from .index import create_index
+
+    retriever = create_index()
+    pass
 
 
 @cli.command()
