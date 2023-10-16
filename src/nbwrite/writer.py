@@ -32,7 +32,8 @@ Respond using only Python code
 Do not use comments
 Do not use quotes
 Do not explain anything
-Write 20 lines max per response
+Do import any libraries you need
+Write 25 lines max per response
 """
 
 template_string = """
@@ -64,7 +65,7 @@ def complete(path: Path, out_path: Path):
         temperature=0.1,
         max_tokens=512,
     )
-    task = "Create a hello world notebook 'res/x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
+    task = "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
     prompt = ChatPromptTemplate.from_messages(
         [
