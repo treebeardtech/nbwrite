@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from langchain.callbacks import wandb_tracing_enabled as _
+from langchain.chat_models import ChatAnyscale
 from langchain.llms.openai import OpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessage
@@ -41,12 +42,22 @@ task: '{task}'.
 nbmake/nb_run.py: {code}"
 """
 
+# Now we can use the NotebookRun class to execute it and check that it printed what we were expecting
+
+# The following class has been imported `nbmake.nb_run.NotebookRun`:
+
 
 def complete(path: Path, out_path: Path):
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
-    temperature = 0.5
-    llm = OpenAI(temperature=temperature)
+    temperature = 0.1
+    model = "codellama/CodeLlama-34b-Instruct-hf"
+
+    llm = ChatAnyscale(
+        temperature=temperature,
+        model_name=model,
+        streaming=True,
+    )
     task = "Create a hello world notebook 'res/x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
     prompt = ChatPromptTemplate.from_messages(
@@ -59,7 +70,7 @@ def complete(path: Path, out_path: Path):
     chain = prompt | llm
     code_out = chain.invoke({"task": task, "code": code})
     title = "AI!"
-    sources = [code_out]
+    sources = [code_out.content]
     nb = new_notebook()
     # nb.metadata = metadata
     nb.cells.append(new_markdown_cell(f"# {title}"))
