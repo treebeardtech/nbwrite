@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from langchain.callbacks import wandb_tracing_enabled as _
+from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatAnyscale
 from langchain.llms.openai import OpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
@@ -38,9 +39,12 @@ Write 25 lines max per response
 
 template_string = """
 
-task: '{task}'.
+task: "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application".
 
-nbmake/nb_run.py: {code}"
+
+context:
+
+{context}
 """
 
 # Now we can use the NotebookRun class to execute it and check that it printed what we were expecting
@@ -65,7 +69,6 @@ def complete(path: Path, out_path: Path):
         temperature=0.1,
         max_tokens=512,
     )
-    task = "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -74,8 +77,19 @@ def complete(path: Path, out_path: Path):
         ]
     )
 
-    chain = prompt | llm
-    code_out = chain.invoke({"task": task, "code": code})
+    from nbwrite.index import create_index
+
+    retriever = create_index()
+    chain_type_kwargs = {"prompt": prompt}
+    chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever,
+        chain_type_kwargs=chain_type_kwargs,
+    )
+
+    # chain = retriever | prompt | llm
+    code_out = chain.invoke({"query": "use nbmake.nb_run.NotebookRun"})
     title = "AI!"
     sources = [code_out]
     nb = new_notebook()

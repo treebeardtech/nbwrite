@@ -5,10 +5,16 @@ from langchain.document_loaders.generic import GenericLoader
 from langchain.document_loaders.parsers import LanguageParser
 from langchain.text_splitter import Language
 
-lib = importlib.util.find_spec("nbmake")
+# https://docs.trychroma.com/troubleshooting#sqlite
+__import__("pysqlite3")
+import sys
+
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 
 def create_index():
+    lib = importlib.util.find_spec("nbmake")
+
     # Assumes the 'openai-python' repository exists in the user's root directory
     code_root = Path(lib.submodule_search_locations._path[0])  # type: ignore
     code = (code_root / "nb_run.py").read_text()
