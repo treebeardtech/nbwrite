@@ -53,10 +53,16 @@ def complete(path: Path, out_path: Path):
     temperature = 0.1
     model = "codellama/CodeLlama-34b-Instruct-hf"
 
-    llm = ChatAnyscale(
+    llm_anyscale = ChatAnyscale(
         temperature=temperature,
         model_name=model,
         streaming=True,
+    )
+
+    llm = OpenAI(
+        model_name="gpt-4",
+        temperature=0.1,
+        max_tokens=512,
     )
     task = "Create a hello world notebook 'res/x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
@@ -70,7 +76,7 @@ def complete(path: Path, out_path: Path):
     chain = prompt | llm
     code_out = chain.invoke({"task": task, "code": code})
     title = "AI!"
-    sources = [code_out.content]
+    sources = [code_out]
     nb = new_notebook()
     # nb.metadata = metadata
     nb.cells.append(new_markdown_cell(f"# {title}"))

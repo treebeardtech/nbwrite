@@ -12,5 +12,6 @@
   "reportUntypedFunctionDecorator": "warning",
   "reportMissingTypeStubs": false,
   "reportGeneralTypeIssues": "warning",
-  "reportUnusedImport": "warning"
+  "reportUnusedImport": "warning",
+  "reportUnusedVariable": "warning"
 }
