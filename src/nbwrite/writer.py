@@ -19,6 +19,15 @@ from nbformat.v4 import (
     reads,
     writes,
 )
+from phoenix.trace.langchain import LangChainInstrumentor, OpenInferenceTracer
+
+# Once you have started a Phoenix server, you can start your LangChain application with the OpenInferenceTracer as a callback. To do this, you will have to instrument your LangChain application with the tracer:
+
+
+# If no exporter is specified, the tracer will export to the locally running Phoenix server
+tracer = OpenInferenceTracer()
+LangChainInstrumentor(tracer).instrument()
+
 
 lib = importlib.util.find_spec("nbmake")
 
@@ -91,7 +100,7 @@ def complete(path: Path, out_path: Path):
     # chain = retriever | prompt | llm
     code_out = chain.invoke({"query": "use nbmake.nb_run.NotebookRun"})
     title = "AI!"
-    sources = [code_out]
+    sources = [code_out["result"]]
     nb = new_notebook()
     # nb.metadata = metadata
     nb.cells.append(new_markdown_cell(f"# {title}"))
