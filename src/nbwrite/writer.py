@@ -1,16 +1,14 @@
-import datetime
 import importlib.util
-import os
+from operator import itemgetter
 from pathlib import Path
-from typing import Any, Dict, List
 
-# from langchain.callbacks import wandb_tracing_enabled as _
-from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatAnyscale
 from langchain.llms.openai import OpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
-from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessage
-from langchain.schema import HumanMessage
+from langchain.prompts.chat import HumanMessagePromptTemplate
+from langchain.schema import format_document
+from langchain.schema.messages import SystemMessage
+from langchain.schema.output_parser import StrOutputParser
 from nbformat import write
 from nbformat.v4 import (
     new_code_cell,
@@ -20,6 +18,16 @@ from nbformat.v4 import (
     writes,
 )
 from phoenix.trace.langchain import LangChainInstrumentor, OpenInferenceTracer
+
+DEFAULT_DOCUMENT_PROMPT = PromptTemplate.from_template(template="{page_content}")
+
+
+def _combine_documents(
+    docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_separator="\n\n"
+):
+    doc_strings = [format_document(doc, document_prompt) for doc in docs]
+    return document_separator.join(doc_strings)
+
 
 # Once you have started a Phoenix server, you can start your LangChain application with the OpenInferenceTracer as a callback. To do this, you will have to instrument your LangChain application with the tracer:
 
@@ -55,8 +63,8 @@ placeholder_task = "Create a hello world notebook 'x.ipynb', use nbmake's Notebo
 s1 = "create a hello world notebook using nbformat"
 s2 = "use nbmake's NotebookRun class to execute it from a Python application"
 s3 = "check the output notebook printed what we were expecting"
-h1 = "use nbformat"
-h2 = "use NotebookRun"
+h1 = ""
+h2 = "use NotebookRun(notebook, timeout)"
 
 
 def complete(path: Path, out_path: Path):
@@ -79,29 +87,34 @@ def complete(path: Path, out_path: Path):
     write(nb, str(out_path))
 
 
+template_string = """
+
+task: {guide}
+
+step 1: {step1}
+step 2: {step2}
+step 3: {step3}
+
+hint 1: {hint1}
+hint 2: {hint2}
+
+context:
+
+{context}
+"""
+
+
 def gen(guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str) -> str:
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
 
-    template_string = f"""
-
-    task: {guide}
-
-    step 1: {step1}
-    step 2: {step2}
-    step 3: {step3}
-
-    context:
-
-    {"{context}"}
-    """
     temperature = 0.1
     model = "codellama/CodeLlama-34b-Instruct-hf"
 
     llm = ChatAnyscale(
         temperature=temperature,
         model_name=model,
-        streaming=True,
+        # streaming=True,
     )
 
     # llm = OpenAI(
@@ -120,14 +133,31 @@ def gen(guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str) 
     from nbwrite.index import create_index
 
     retriever = create_index()
-    chain_type_kwargs = {"prompt": prompt}
-    chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        chain_type_kwargs=chain_type_kwargs,
+
+    chain = (
+        {
+            "context": itemgetter("query") | retriever | _combine_documents,
+            "guide": itemgetter("guide"),
+            "step1": itemgetter("step1"),
+            "step2": itemgetter("step2"),
+            "step3": itemgetter("step3"),
+            "hint1": itemgetter("hint1"),
+            "hint2": itemgetter("hint2"),
+        }
+        | prompt
+        | llm
+        | StrOutputParser()
     )
 
-    # chain = retriever | prompt | llm
-    code_out = chain.invoke({"query": "use nbmake.nb_run.NotebookRun"})
-    return code_out["result"]
+    code_out = chain.invoke(
+        {
+            "query": "use nbmake.nb_run.NotebookRun",
+            "guide": guide,
+            "step1": step1,
+            "step2": step2,
+            "step3": step3,
+            "hint1": hint1,
+            "hint2": hint2,
+        }
+    )
+    return code_out
