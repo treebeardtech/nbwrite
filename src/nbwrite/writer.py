@@ -46,24 +46,51 @@ Do import any libraries you need
 Write 25 lines max per response
 """
 
-template_string = """
-
-task: "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application".
-
-
-context:
-
-{context}
-"""
 
 # Now we can use the NotebookRun class to execute it and check that it printed what we were expecting
 
 # The following class has been imported `nbmake.nb_run.NotebookRun`:
 
+placeholder_task = "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
+s1 = "create a hello world notebook using nbformat"
+s2 = "use nbmake's NotebookRun class to execute it from a Python application"
+s3 = "check the output notebook printed what we were expecting"
+h1 = "use nbformat"
+h2 = "use NotebookRun"
+
 
 def complete(path: Path, out_path: Path):
+    code_out = gen(placeholder_task, s1, s2, s3, h1, h2)
+    title = "AI!"
+    sources = [code_out]
+    nb = new_notebook()
+    # nb.metadata = metadata
+    nb.cells.append(new_markdown_cell(f"# {title}"))
+    for src in sources:
+        nb.cells.append(new_code_cell(src))
+
+    # double check some basic structure
+    string = writes(nb)
+    _ = reads(string)
+    write(nb, str(out_path))
+
+
+def gen(guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str) -> str:
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
+
+    template_string = f"""
+
+    task: {guide}
+
+    step 1: {step1}
+    step 2: {step2}
+    step 3: {step3}
+
+    context:
+
+    {"{context}"}
+    """
     temperature = 0.1
     model = "codellama/CodeLlama-34b-Instruct-hf"
 
@@ -99,15 +126,4 @@ def complete(path: Path, out_path: Path):
 
     # chain = retriever | prompt | llm
     code_out = chain.invoke({"query": "use nbmake.nb_run.NotebookRun"})
-    title = "AI!"
-    sources = [code_out["result"]]
-    nb = new_notebook()
-    # nb.metadata = metadata
-    nb.cells.append(new_markdown_cell(f"# {title}"))
-    for src in sources:
-        nb.cells.append(new_code_cell(src))
-
-    # double check some basic structure
-    string = writes(nb)
-    _ = reads(string)
-    write(nb, str(out_path))
+    return code_out["result"]
