@@ -1,8 +1,11 @@
 from pathlib import Path
 
 import click
+from dotenv import load_dotenv
 
 import nbwrite.writer as writer
+
+load_dotenv()
 
 
 @click.group()

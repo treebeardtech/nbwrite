@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-from langchain.callbacks import wandb_tracing_enabled as _
+# from langchain.callbacks import wandb_tracing_enabled as _
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatAnyscale
 from langchain.llms.openai import OpenAI
