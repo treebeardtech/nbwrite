@@ -36,7 +36,7 @@ code_root = Path(lib.submodule_search_locations._path[0])  # type: ignore
 code = (code_root / "nb_run.py").read_text()
 
 SYSTEM_PROMPT = """
-You are a python programmer writing a markdown document describing a task.
+You are a python programmer writing an ipynb document describing a task.
 
 Do install any packages you need using pip
 Do import any libraries you need
@@ -62,12 +62,16 @@ h2 = "use NotebookRun"
 def complete(path: Path, out_path: Path):
     code_out = gen(placeholder_task, s1, s2, s3, h1, h2)
     title = "AI!"
-    sources = [code_out]
     nb = new_notebook()
     # nb.metadata = metadata
-    nb.cells.append(new_markdown_cell(f"# {title}"))
-    for src in sources:
-        nb.cells.append(new_code_cell(src))
+
+    sections = code_out.split("```")
+
+    for i in range(0, len(sections)):
+        if i % 2 == 0:
+            nb.cells.append(new_markdown_cell(sections[i]))
+        else:
+            nb.cells.append(new_code_cell(sections[i]))
 
     # double check some basic structure
     string = writes(nb)
