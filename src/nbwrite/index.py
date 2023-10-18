@@ -43,7 +43,7 @@ def create_index():
     db = Chroma.from_documents(texts, OpenAIEmbeddings(disallowed_special=()))
     retriever = db.as_retriever(
         search_type="mmr",  # Also test "similarity"
-        search_kwargs={"k": 8},
+        search_kwargs={"k": 2},
     )
 
     return retriever

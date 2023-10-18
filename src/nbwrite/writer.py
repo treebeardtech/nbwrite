@@ -36,14 +36,14 @@ code_root = Path(lib.submodule_search_locations._path[0])  # type: ignore
 code = (code_root / "nb_run.py").read_text()
 
 SYSTEM_PROMPT = """
-You are a python programmer
+You are a python programmer writing a markdown document describing a task.
 
-Respond using only Python code
-Do not use comments
-Do not use quotes
-Do not explain anything
+Do install any packages you need using pip
 Do import any libraries you need
-Write 25 lines max per response
+Write 30 lines max per response
+Write snippets of markdown before each section of code
+Use a help and authoritative tone
+Do not use conversational language
 """
 
 
@@ -94,17 +94,17 @@ def gen(guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str) 
     temperature = 0.1
     model = "codellama/CodeLlama-34b-Instruct-hf"
 
-    llm_anyscale = ChatAnyscale(
+    llm = ChatAnyscale(
         temperature=temperature,
         model_name=model,
         streaming=True,
     )
 
-    llm = OpenAI(
-        model_name="gpt-4",
-        temperature=0.1,
-        max_tokens=512,
-    )
+    # llm = OpenAI(
+    #     model_name="gpt-4",
+    #     temperature=0.1,
+    #     max_tokens=512,
+    # )
 
     prompt = ChatPromptTemplate.from_messages(
         [
