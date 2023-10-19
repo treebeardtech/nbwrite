@@ -119,11 +119,12 @@ def gen(
     from langchain.agents import tool
 
     @tool
-    def get_word_length(word: str) -> int:
-        """Returns the length of a word."""
-        return int(input(f"what is the length of {word}? "))
+    def test_script(script: str) -> str:
+        """Returns the output of the script."""
+        # return "input(f"what is the output?\n\n{script_base64}")"
+        return "Success!"
 
-    tools = [get_word_length]
+    tools = [test_script]
     from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 
     MEMORY_KEY = "chat_history"
@@ -131,7 +132,7 @@ def gen(
         [
             (
                 "system",
-                "You are very powerful assistant, but bad at calculating lengths of words.",
+                "You are a Python developer. You are good at writing code but bad at knowing what the output will be",
             ),
             MessagesPlaceholder(variable_name=MEMORY_KEY),
             ("user", "{input}"),
@@ -164,15 +165,17 @@ def gen(
 
     from langchain.agents import AgentExecutor
 
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = AgentExecutor(
+        agent=agent, tools=tools, verbose=True, handle_parsing_errors=True
+    )
 
     chat_history = []
 
-    input1 = "how many letters in the word educa?"
+    input1 = "how to use the groupby function to plot the iris dataset"
     result = agent_executor.invoke({"input": input1, "chat_history": chat_history})
     chat_history.append(HumanMessage(content=input1))
     chat_history.append(AIMessage(content=result["output"]))
     out = agent_executor.invoke(
-        {"input": "is that a real word?", "chat_history": chat_history}
+        {"input": "what is the output?", "chat_history": chat_history}
     )
     return out["output"]
