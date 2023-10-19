@@ -2,12 +2,12 @@ import importlib.util
 from operator import itemgetter
 from pathlib import Path
 
-from langchain.chat_models import ChatAnyscale
+from langchain.chat_models import ChatAnyscale, ChatOpenAI
 from langchain.llms.openai import OpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts.chat import HumanMessagePromptTemplate
 from langchain.schema import format_document
-from langchain.schema.messages import SystemMessage
+from langchain.schema.messages import AIMessage, HumanMessage
 from langchain.schema.output_parser import StrOutputParser
 from nbformat import write
 from nbformat.v4 import (
@@ -101,56 +101,78 @@ def gen(
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
 
-    temperature = 0.1
+    temperature = 0
     model = "codellama/CodeLlama-34b-Instruct-hf"
 
-    llm = ChatAnyscale(
-        temperature=temperature,
-        model_name=model,
-        # streaming=True,
-    )
-
-    # llm = OpenAI(
-    #     model_name="gpt-4",
-    #     temperature=0.1,
-    #     max_tokens=512,
+    # llm = ChatAnyscale(
+    #     temperature=temperature,
+    #     model_name=model,
+    #     # streaming=True,
     # )
 
+    llm = ChatOpenAI(
+        model_name="gpt-4",
+        temperature=temperature,
+        max_tokens=512,
+    )
+
+    from langchain.agents import tool
+
+    @tool
+    def get_word_length(word: str) -> int:
+        """Returns the length of a word."""
+        return int(input(f"what is the length of {word}? "))
+
+    tools = [get_word_length]
+    from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+    MEMORY_KEY = "chat_history"
     prompt = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(content=(SYSTEM_PROMPT)),
-            HumanMessagePromptTemplate.from_template(template_string),
+            (
+                "system",
+                "You are very powerful assistant, but bad at calculating lengths of words.",
+            ),
+            MessagesPlaceholder(variable_name=MEMORY_KEY),
+            ("user", "{input}"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
         ]
     )
 
-    from nbwrite.index import create_index
+    from langchain.tools.render import format_tool_to_openai_function
 
-    retriever = create_index()
+    llm_with_tools = llm.bind(
+        functions=[format_tool_to_openai_function(t) for t in tools]
+    )
+    from langchain.agents.format_scratchpad import format_to_openai_functions
+    from langchain.agents.output_parsers import (
+        OpenAIFunctionsAgentOutputParser,
+    )
 
-    chain = (
+    agent = (
         {
-            "context": itemgetter("query") | retriever | _combine_documents,
-            "guide": itemgetter("guide"),
-            "step1": itemgetter("step1"),
-            "step2": itemgetter("step2"),
-            "step3": itemgetter("step3"),
-            "hint1": itemgetter("hint1"),
-            "hint2": itemgetter("hint2"),
+            "input": lambda x: x["input"],
+            "agent_scratchpad": lambda x: format_to_openai_functions(
+                x["intermediate_steps"]
+            ),
+            "chat_history": lambda x: x["chat_history"],
         }
         | prompt
-        | llm
-        | StrOutputParser()
+        | llm_with_tools
+        | OpenAIFunctionsAgentOutputParser()
     )
 
-    code_out = chain.invoke(
-        {
-            "query": query,
-            "guide": guide,
-            "step1": step1,
-            "step2": step2,
-            "step3": step3,
-            "hint1": hint1,
-            "hint2": hint2,
-        }
+    from langchain.agents import AgentExecutor
+
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+    chat_history = []
+
+    input1 = "how many letters in the word educa?"
+    result = agent_executor.invoke({"input": input1, "chat_history": chat_history})
+    chat_history.append(HumanMessage(content=input1))
+    chat_history.append(AIMessage(content=result["output"]))
+    out = agent_executor.invoke(
+        {"input": "is that a real word?", "chat_history": chat_history}
     )
-    return code_out
+    return out["output"]

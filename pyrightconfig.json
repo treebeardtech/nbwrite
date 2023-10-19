@@ -13,5 +13,7 @@
   "reportMissingTypeStubs": false,
   "reportGeneralTypeIssues": "warning",
   "reportUnusedImport": "warning",
-  "reportUnusedVariable": "warning"
+  "reportUnusedVariable": "warning",
+  "reportUnusedFunction": "warning",
+  "reportUnknownLambdaType": "warning"
 }
