@@ -1,6 +1,7 @@
 import importlib.util
 from operator import itemgetter
 from pathlib import Path
+from typing import List
 
 from langchain.chat_models import ChatAnyscale
 from langchain.llms.openai import OpenAI
@@ -49,10 +50,12 @@ s3 = "check the output notebook printed what we were expecting"
 h1 = ""
 h2 = "use NotebookRun(notebook, timeout)"
 query = "use nbmake.nb_run.NotebookRun"
+pkgs = ["nbmake", "nbformat", "nbclient"]
+k = 5
 
 
 def complete(path: Path, out_path: Path):
-    code_out = gen(query, placeholder_task, s1, s2, s3, h1, h2)
+    code_out = gen(query, placeholder_task, s1, s2, s3, h1, h2, pkgs, k)
     title = "AI!"
     nb = new_notebook()
     # nb.metadata = metadata
@@ -96,7 +99,15 @@ def _combine_documents(
 
 
 def gen(
-    query: str, guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str
+    query: str,
+    guide: str,
+    step1: str,
+    step2: str,
+    step3: str,
+    hint1: str,
+    hint2: str,
+    pkgs: List[str],
+    k: int,
 ) -> str:
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
@@ -125,7 +136,7 @@ def gen(
 
     from nbwrite.index import create_index
 
-    retriever = create_index()
+    retriever = create_index(pkgs, k)
 
     chain = (
         {
