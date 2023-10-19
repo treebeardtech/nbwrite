@@ -21,18 +21,6 @@ from phoenix.trace.langchain import LangChainInstrumentor, OpenInferenceTracer
 
 DEFAULT_DOCUMENT_PROMPT = PromptTemplate.from_template(template="{page_content}")
 
-
-def _combine_documents(
-    docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_separator="\n\n"
-):
-    doc_strings = [format_document(doc, document_prompt) for doc in docs]
-    return document_separator.join(doc_strings)
-
-
-# Once you have started a Phoenix server, you can start your LangChain application with the OpenInferenceTracer as a callback. To do this, you will have to instrument your LangChain application with the tracer:
-
-
-# If no exporter is specified, the tracer will export to the locally running Phoenix server
 tracer = OpenInferenceTracer()
 LangChainInstrumentor(tracer).instrument()
 
@@ -54,21 +42,17 @@ Use a help and authoritative tone
 Do not use conversational language
 """
 
-
-# Now we can use the NotebookRun class to execute it and check that it printed what we were expecting
-
-# The following class has been imported `nbmake.nb_run.NotebookRun`:
-
 placeholder_task = "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 s1 = "create a hello world notebook using nbformat"
 s2 = "use nbmake's NotebookRun class to execute it from a Python application"
 s3 = "check the output notebook printed what we were expecting"
 h1 = ""
 h2 = "use NotebookRun(notebook, timeout)"
+query = "use nbmake.nb_run.NotebookRun"
 
 
 def complete(path: Path, out_path: Path):
-    code_out = gen(placeholder_task, s1, s2, s3, h1, h2)
+    code_out = gen(query, placeholder_task, s1, s2, s3, h1, h2)
     title = "AI!"
     nb = new_notebook()
     # nb.metadata = metadata
@@ -104,7 +88,16 @@ context:
 """
 
 
-def gen(guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str) -> str:
+def _combine_documents(
+    docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_separator="\n\n"
+):
+    doc_strings = [format_document(doc, document_prompt) for doc in docs]
+    return document_separator.join(doc_strings)
+
+
+def gen(
+    query: str, guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str
+) -> str:
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
 
@@ -151,7 +144,7 @@ def gen(guide: str, step1: str, step2: str, step3: str, hint1: str, hint2: str) 
 
     code_out = chain.invoke(
         {
-            "query": "use nbmake.nb_run.NotebookRun",
+            "query": query,
             "guide": guide,
             "step1": step1,
             "step2": step2,
