@@ -37,7 +37,7 @@ def cli():
     "--model",
     default=["gpt-3.5-turbo"],
     multiple=True,
-    help="The API names of the models as per https://platform.openai.com/docs/models/",
+    help="The API names of the models as per https://platform.openai.com/docs/models/ and https://app.endpoints.anyscale.com/",
 )
 @click.option(
     "--generations",
@@ -45,8 +45,20 @@ def cli():
     type=int,
     help="The number of notebooks to generate per model",
 )
+@click.option(
+    "--phoenix-trace/--no-phoenix-trace",
+    default=False,
+    type=bool,
+    help="Whether to trace using Phoenix https://docs.arize.com/phoenix/",
+)
 def complete(
-    task: str, step: List[str], package: List[str], out: Path, model: List[str]
+    task: str,
+    step: List[str],
+    package: List[str],
+    out: Path,
+    model: List[str],
+    generations: int,
+    phoenix_trace: bool,
 ):
     """Writes example notebooks which complete a given TASK
 
@@ -58,6 +70,8 @@ def complete(
         "packages": package,
         "out": str(out),
         "models": model,
+        "generations": generations,
+        "phoenix_trace": phoenix_trace,
     }
 
     click.echo(f"Writing notebook with options:\n\n{json.dumps(config, indent=2)}")
