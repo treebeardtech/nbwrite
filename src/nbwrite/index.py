@@ -6,14 +6,15 @@ from langchain.document_loaders.generic import GenericLoader
 from langchain.document_loaders.parsers import LanguageParser
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 
-# https://docs.trychroma.com/troubleshooting#sqlite
-__import__("pysqlite3")
-import sys
-
-sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
-
 
 def create_index(pkgs: List[str], k: int):
+
+    # https://docs.trychroma.com/troubleshooting#sqlite
+    __import__("pysqlite3")
+    import sys
+
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+
     python_splitter = RecursiveCharacterTextSplitter.from_language(
         language=Language.PYTHON, chunk_size=2000, chunk_overlap=200
     )

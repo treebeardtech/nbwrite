@@ -18,13 +18,8 @@ from nbformat.v4 import (
     reads,
     writes,
 )
-from phoenix.trace.langchain import LangChainInstrumentor, OpenInferenceTracer
 
 DEFAULT_DOCUMENT_PROMPT = PromptTemplate.from_template(template="{page_content}")
-
-tracer = OpenInferenceTracer()
-LangChainInstrumentor(tracer).instrument()
-
 
 lib = importlib.util.find_spec("nbmake")
 
@@ -55,6 +50,13 @@ k = 5
 
 
 def complete(path: Path, out_path: Path):
+    from phoenix.trace.langchain import (
+        LangChainInstrumentor,
+        OpenInferenceTracer,
+    )
+
+    tracer = OpenInferenceTracer()
+    LangChainInstrumentor(tracer).instrument()
     code_out = gen(query, placeholder_task, s1, s2, s3, h1, h2, pkgs, k)
     title = "AI!"
     nb = new_notebook()
