@@ -1,9 +1,8 @@
-import importlib.util
+from dataclasses import dataclass
 from operator import itemgetter
 from pathlib import Path
 from typing import List
 
-from langchain.chat_models import ChatAnyscale
 from langchain.llms.openai import OpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts.chat import HumanMessagePromptTemplate
@@ -19,34 +18,25 @@ from nbformat.v4 import (
     writes,
 )
 
-DEFAULT_DOCUMENT_PROMPT = PromptTemplate.from_template(template="{page_content}")
+from nbwrite.constants import (
+    DEFAULT_DOCUMENT_PROMPT,
+    MAX_TOKENS,
+    SYSTEM_PROMPT,
+    TEMPERATURE,
+    TEMPLATE_STRING,
+)
+from nbwrite.index import create_index
 
-lib = importlib.util.find_spec("nbmake")
 
-# Assumes the 'openai-python' repository exists in the user's root directory
-code_root = Path(lib.submodule_search_locations._path[0])  # type: ignore
-code = (code_root / "nb_run.py").read_text()
-
-SYSTEM_PROMPT = """
-You are a python programmer writing an ipynb document describing a task.
-
-Do install any packages you need using pip
-Do import any libraries you need
-Write 30 lines max per response
-Write snippets of markdown before each section of code
-Use a help and authoritative tone
-Do not use conversational language
-"""
-
-placeholder_task = "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
-s1 = "create a hello world notebook using nbformat"
-s2 = "use nbmake's NotebookRun class to execute it from a Python application"
-s3 = "check the output notebook printed what we were expecting"
-h1 = ""
-h2 = "use NotebookRun(notebook, timeout)"
-query = "use nbmake.nb_run.NotebookRun"
-pkgs = ["nbmake", "nbformat", "nbclient"]
-k = 5
+@dataclass
+class Config:
+    task: str
+    steps: List[str]
+    packages: List[str]
+    out: Path
+    models: List[str]
+    generations: int
+    phoenix_trace: bool
 
 
 def complete(path: Path, out_path: Path):
@@ -76,70 +66,32 @@ def complete(path: Path, out_path: Path):
     write(nb, str(out_path))
 
 
-template_string = """
-
-task: {guide}
-
-step 1: {step1}
-step 2: {step2}
-step 3: {step3}
-
-hint 1: {hint1}
-hint 2: {hint2}
-
-context:
-
-{context}
-"""
-
-
-def _combine_documents(
-    docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_separator="\n\n"
-):
-    doc_strings = [format_document(doc, document_prompt) for doc in docs]
-    return document_separator.join(doc_strings)
-
-
 def gen(
-    query: str,
-    guide: str,
-    step1: str,
-    step2: str,
-    step3: str,
-    hint1: str,
-    hint2: str,
-    pkgs: List[str],
-    k: int,
+    config: Config,
 ) -> str:
     """Write demo notebooks based on prompts in the notebook and the index"""
     # openai.organization = os.getenv("OPENAI_ORG_ID")
 
-    temperature = 0.1
-    model = "codellama/CodeLlama-34b-Instruct-hf"
-
-    llm = ChatAnyscale(
-        temperature=temperature,
-        model_name=model,
-        # streaming=True,
-    )
-
-    # llm = OpenAI(
-    #     model_name="gpt-4",
-    #     temperature=0.1,
-    #     max_tokens=512,
-    # )
+    llms = {
+        mm: OpenAI(model_name=mm, temperature=TEMPERATURE, max_tokens=MAX_TOKENS) for mm in config.models
+    }
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(content=(SYSTEM_PROMPT)),
-            HumanMessagePromptTemplate.from_template(template_string),
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessagePromptTemplate.from_template(TEMPLATE_STRING),
         ]
     )
 
-    from nbwrite.index import create_index
+    retriever = create_index(config.packages)
 
-    retriever = create_index(pkgs, k)
+    def _combine_documents(
+        docs, document_prompt=DEFAULT_DOCUMENT_PROMPT, document_separator="\n\n"  # type: ignore
+    ):
+        doc_strings = [format_document(doc, document_prompt) for doc in docs]
+        return document_separator.join(doc_strings)
 
+    llm = llms[config.models[0]] # TODO make parallel and combine all generations for all models
     chain = (
         {
             "context": itemgetter("query") | retriever | _combine_documents,

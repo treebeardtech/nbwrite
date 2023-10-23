@@ -6,6 +6,7 @@ import click
 from dotenv import load_dotenv
 
 import nbwrite.writer as writer
+from nbwrite.constants import DEFAULT_MODEL
 
 load_dotenv()
 
@@ -29,13 +30,13 @@ def cli():
 )
 @click.option(
     "--out",
-    type=click.Path(exists=False, path_type=Path, dir_okay=True, file_okay=False),
-    default="out",
+    type=click.Path(path_type=Path, dir_okay=True, file_okay=False),
+    default="nbwrite-out",
     help="The directory to write the generated notebooks to",
 )
 @click.option(
     "--model",
-    default=["gpt-3.5-turbo"],
+    default=[DEFAULT_MODEL],
     multiple=True,
     help="The API names of the models as per https://platform.openai.com/docs/models/ and https://app.endpoints.anyscale.com/",
 )
@@ -75,6 +76,9 @@ def complete(
     }
 
     click.echo(f"Writing notebook with options:\n\n{json.dumps(config, indent=2)}")
+
+    conf_obj = writer.Config(**config)
+    writer.gen(conf_obj)
 
 
 if __name__ == "__main__":

@@ -22,5 +22,6 @@ nbwrite \
 TODOs before releasing
 
 - basic eval/testing
-- cache index to disk?
 - document setup
+
+## Data Security

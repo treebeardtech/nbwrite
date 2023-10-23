@@ -6,8 +6,10 @@ from langchain.document_loaders.generic import GenericLoader
 from langchain.document_loaders.parsers import LanguageParser
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 
+from nbwrite.constants import SEARCH_TYPE, K
 
-def create_index(pkgs: List[str], k: int):
+
+def create_index(pkgs: List[str], k: int = K, search_type: str = SEARCH_TYPE):
 
     # https://docs.trychroma.com/troubleshooting#sqlite
     __import__("pysqlite3")
@@ -36,7 +38,7 @@ def create_index(pkgs: List[str], k: int):
 
     db = Chroma.from_documents(texts, OpenAIEmbeddings(disallowed_special=()))
     retriever = db.as_retriever(
-        search_type="mmr",  # Also test "similarity"
+        search_type=search_type,
         search_kwargs={"k": k},
     )
 
