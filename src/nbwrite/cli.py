@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List
 
 import click
+import yaml
 from dotenv import load_dotenv
 
 import nbwrite.writer as writer
@@ -19,14 +20,8 @@ def cli():
 
 @cli.command()
 @click.argument(
-    "task",
-    type=str,
-)
-@click.option(
-    "--step", default=[], multiple=True, help="Steps in the problem solving process"
-)
-@click.option(
-    "--package", default=[], multiple=True, help="Local Python packages to use for RAG"
+    "spec",
+    type=click.Path(path_type=Path, dir_okay=False, file_okay=True),
 )
 @click.option(
     "--out",
@@ -47,21 +42,21 @@ def cli():
     help="The number of notebooks to generate per model",
 )
 def complete(
-    task: str,
-    step: List[str],
-    package: List[str],
+    spec: Path,
     out: Path,
     model: List[str],
     generations: int,
 ):
-    """Writes example notebooks which complete a given TASK
+    """Writes example notebooks which complete a given SPEC
 
-    e.g. nbwrite complete "Use Pandas to visualise the Titanic dataset"
+    e.g. nbwrite complete "./spec.yaml"
     """
+
+    spec = yaml.safe_load(spec.read_text())
     config = {
-        "task": task,
-        "steps": step,
-        "packages": package,
+        "task": spec["task"],
+        "steps": spec["steps"],
+        "packages": spec["packages"],
         "out": str(out),
         "models": model,
         "generations": generations,

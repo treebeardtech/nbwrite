@@ -18,19 +18,7 @@ def test_complete(tmpdir: local):
     runner = CliRunner()
     args = [
         "complete",
-        placeholder_task,
-        "--step",
-        "create a hello world notebook using nbformat",
-        "--step",
-        "use nbmake's NotebookRun class to execute it from a Python application",
-        "--step",
-        "check the output notebook printed what we were expecting",
-        "--package",
-        "nbmake",
-        "--package",
-        "nbformat",
-        "--package",
-        "nbclient",
+        "tests/resources/nbwrite-in/example.yaml",
         "--out",
         str(tmpdir),
     ]
