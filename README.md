@@ -18,3 +18,9 @@ nbwrite \
   --context nbmake \
   --context another_lib
 ```
+
+TODOs before releasing
+
+- basic eval/testing
+- cache index to disk?
+- document setup
