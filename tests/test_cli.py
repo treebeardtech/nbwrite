@@ -1,42 +1,47 @@
 import logging
 from pathlib import Path
+from typing import List
 
+import nbformat
 from click.testing import CliRunner
+from nbclient.client import NotebookClient
 from py.path import local
 
 from nbwrite.cli import cli
+
+logger = logging.getLogger(__name__)
 
 placeholder_task = "Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application"
 
 
 def test_complete(tmpdir: local):
     runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            "complete",
-            placeholder_task,
-            "--step",
-            "create a hello world notebook using nbformat",
-            "--step",
-            "use nbmake's NotebookRun class to execute it from a Python application",
-            "--step",
-            "check the output notebook printed what we were expecting",
-            "--package",
-            "nbmake",
-            "--package",
-            "nbformat",
-            "--package",
-            "nbclient",
-            "--out",
-            str(tmpdir),
-        ],
-    )
+    args = [
+        "complete",
+        placeholder_task,
+        "--step",
+        "create a hello world notebook using nbformat",
+        "--step",
+        "use nbmake's NotebookRun class to execute it from a Python application",
+        "--step",
+        "check the output notebook printed what we were expecting",
+        "--package",
+        "nbmake",
+        "--package",
+        "nbformat",
+        "--package",
+        "nbclient",
+        "--out",
+        str(tmpdir),
+    ]
+
+    shell_fmt = " \\\n  ".join(["nbwrite", *args])
+    logger.warn(f"Running\n{shell_fmt}")
+    result = runner.invoke(cli, args)
+
     assert result.exit_code == 0
 
-    import nbformat
-    from nbclient.client import NotebookClient
-
+    logger.warn(f"Checking outputs in {tmpdir}")
     outputs = list(Path(tmpdir).glob("*.ipynb"))
     assert len(outputs) == 1
     #     nb = nbformat.read(f, as_version=4)

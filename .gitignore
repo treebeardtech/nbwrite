@@ -137,3 +137,4 @@ trash
 .testvenv
 wandb
 flagged
+nbwrite-out

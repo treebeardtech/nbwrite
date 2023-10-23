@@ -46,12 +46,6 @@ def cli():
     type=int,
     help="The number of notebooks to generate per model",
 )
-@click.option(
-    "--phoenix-trace/--no-phoenix-trace",
-    default=False,
-    type=bool,
-    help="Whether to trace using Phoenix https://docs.arize.com/phoenix/",
-)
 def complete(
     task: str,
     step: List[str],
@@ -59,7 +53,6 @@ def complete(
     out: Path,
     model: List[str],
     generations: int,
-    phoenix_trace: bool,
 ):
     """Writes example notebooks which complete a given TASK
 
@@ -72,7 +65,6 @@ def complete(
         "out": str(out),
         "models": model,
         "generations": generations,
-        "phoenix_trace": phoenix_trace,
     }
 
     click.echo(f"Writing notebook with options:\n\n{json.dumps(config, indent=2)}")

@@ -16,9 +16,7 @@ Do not use conversational language
 """
 
 K = 5
-SEARCH_TYPE = "mmr" # Also test "similarity"
-
-DEFAULT_DOCUMENT_PROMPT = PromptTemplate.from_template(template="{page_content}")
+SEARCH_TYPE = "mmr"  # Also test "similarity"
 
 TEMPLATE_STRING = """
 ---------------------------------------------------------------
@@ -31,6 +29,12 @@ task:
 steps:
 
 {steps}
+
+---------------------------------------------------------------
+
+packages:
+
+{packages}
 
 ---------------------------------------------------------------
 
