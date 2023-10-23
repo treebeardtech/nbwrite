@@ -9,7 +9,7 @@
       "type": "python",
       "request": "launch",
       "module": "nbwrite.cli",
-      "justMyCode": true,
+      "justMyCode": false,
       "args": [
         "complete",
         "tests/resources/nbwrite-in/example.yaml"

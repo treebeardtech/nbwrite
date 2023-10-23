@@ -43,6 +43,10 @@ class Config:
 import click
 
 
+def get_llm(model_name: str):
+    return OpenAI(model_name=model_name, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
+
+
 def gen(
     config: Config,
 ):
@@ -60,10 +64,7 @@ def gen(
         tracer = OpenInferenceTracer()
         LangChainInstrumentor(tracer).instrument()
 
-    llms = {
-        mm: OpenAI(model_name=mm, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
-        for mm in config.models
-    }
+    llms = {mm: get_llm(mm) for mm in config.models}
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -106,7 +107,7 @@ def gen(
 
     nb = new_notebook()
 
-    sections = re.split(r"```(?:python)?\n", code_out)
+    sections = re.split(r"```(?:python\n)?", code_out)
 
     for i in range(0, len(sections)):
         if i % 2 == 0:
