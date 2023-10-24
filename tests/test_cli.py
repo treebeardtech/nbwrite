@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import nbformat
 from click.testing import CliRunner
+from langchain.embeddings import FakeEmbeddings
 from langchain.llms.fake import FakeListLLM
 from nbclient.client import NotebookClient
 from py.path import local
@@ -32,25 +33,27 @@ def test_complete(tmpdir: local):
     shell_fmt = " \\\n  ".join(["nbwrite", *args])
     logger.warn(f"Running\n{shell_fmt}")
 
-    with patch("nbwrite.writer.get_llm") as mock_get_llm:
-        mock_get_llm.return_value = FakeListLLM(
-            responses=["Code:\n```python\nprint('Hello, world!')\n```\n"]
-        )
-        result = runner.invoke(cli, args)
+    with patch("nbwrite.index.get_embeddings") as mock_get_embeddings:
+        mock_get_embeddings.return_value = FakeEmbeddings(size=1536)
+        with patch("nbwrite.writer.get_llm") as mock_get_llm:
+            mock_get_llm.return_value = FakeListLLM(
+                responses=["Code:\n```python\nprint('Hello, world!')\n```\n"]
+            )
+            result = runner.invoke(cli, args)
 
-        assert result.exit_code == 0
+            assert result.exit_code == 0
 
-        logger.warn(f"Checking outputs in {outdir}")
-        outputs = list(Path(outdir).glob("*.ipynb"))
-        assert len(outputs) == 2
+            logger.warn(f"Checking outputs in {outdir}")
+            outputs = list(Path(outdir).glob("*.ipynb"))
+            assert len(outputs) == 2
 
-        nb = nbformat.read(outputs[0], as_version=4)
+            nb = nbformat.read(outputs[0], as_version=4)
 
-        client = NotebookClient(nb)
-        client.execute()
+            client = NotebookClient(nb)
+            client.execute()
 
-        for cell in nb.cells:
-            if cell.cell_type == "code" and 'print("Hello, world!")' in cell.source:
-                assert "Hello, world!" in "".join(
-                    output.text for output in cell.outputs
-                )
+            for cell in nb.cells:
+                if cell.cell_type == "code" and 'print("Hello, world!")' in cell.source:
+                    assert "Hello, world!" in "".join(
+                        output.text for output in cell.outputs
+                    )

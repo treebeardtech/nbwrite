@@ -17,6 +17,10 @@ if os.getenv("NBWRITE_OVERRIDE_SQLITE"):
     sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 
+def get_embeddings():
+    return OpenAIEmbeddings(disallowed_special=())
+
+
 def create_index(
     pkgs: List[str],
     retriever_kwargs: Dict[str, Any],
@@ -39,7 +43,7 @@ def create_index(
         )
         texts += python_splitter.split_documents(loader.load())
 
-    db = Chroma.from_documents(texts, OpenAIEmbeddings(disallowed_special=()))
+    db = Chroma.from_documents(texts, get_embeddings())
     retriever = db.as_retriever(**retriever_kwargs)
 
     return retriever
