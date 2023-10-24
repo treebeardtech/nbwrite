@@ -5,15 +5,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import click
 import nbformat
-from langchain.llms.openai import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts.chat import HumanMessagePromptTemplate
 from langchain.schema import format_document
 from langchain.schema.messages import SystemMessage
+from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnableParallel
 from nbformat.v4 import (
     new_code_cell,
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_llm(**llm_kwargs: Dict[str, any]):
-    return OpenAI(**llm_kwargs)
+    return ChatOpenAI(**llm_kwargs)
 
 
 def gen(
@@ -68,7 +69,7 @@ def gen(
         doc_strings = [format_document(doc, document_prompt) for doc in docs]
         return document_separator.join(doc_strings)
 
-    llm = get_llm(config.generation.llm_kwargs)
+    llm = get_llm(**config.generation.llm_kwargs) | StrOutputParser()
     chain = (
         {
             "context": itemgetter("task") | retriever | _combine_documents,
