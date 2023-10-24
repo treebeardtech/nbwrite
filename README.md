@@ -1,18 +1,110 @@
-# Nbwrite
+# nbwrite
 
-nbwrite writes notebook-based documentation for you
+**Note: This is an experimental use case for LLMs, the output may at times be unhelpful or inappropriate**
 
-{{ intro }}
+nbwrite is a CLI tool which generates notebook-based Python examples using LLMs
 
+Potential use cases include:
+1. You are writing a Python package and you want to produce executable tutorials for your stakeholders
+2. You are using a Python package and you want to generate a kick-start guide
+3. You want to generate regression tests for a python package
 
-## Quick start
+## Features
 
-{{ quick start }}
+- Converts a set of steps and a task description into an executable Python notebook
+- Configurable OpenAI API parameters
+- Generate notebooks based on your own code using retrieval augmented generation
+
+## Getting Started
+
+### 1. Install via any Python package manager
+
+```sh
+pip install nbwrite
+```
+
+### 2. Setup your OpenAI API Access
+
+You will need to create an account and potentially buy credits via https://platform.openai.com/
+```sh
+export OPENAI_API_KEY='sk-xxxx'
+```
+
+### 3. Create a spec file for your generation job
+
+e.g. nbwrite/example1.yaml:
+```yaml
+task: |
+  Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application
+steps:
+  - Create a hello world notebook using nbformat
+  - Use nbmake's NotebookRun class to execute it from a Python application
+  - Check the output notebook printed what we were expecting
+packages:
+  - nbmake
+generation:
+  count: 2
+```
+
+### 4. Generate some notebooks
+
+```sh
+nbwrite ./nbwrite/example1.yaml
+```
+
+Your outputs will be in your current directory
 
 ## Guides
 
-{{ how to write a spec file }}
+### Generate guides for my closed-source code
 
-## Data Security
+By default, OpenAI's models can generate docs based on parametric knowledge.
+This is limited to popular open source libraries.
 
-{embeddings and openai}
+The `packages` input in the spec file can be used to reference Python packages in your
+current environment, which will be indexed in a local Vector DB. Code relevant to the 
+task is then stuffed into the prompt.
+
+You can pass in an arbitrary number of packages, just remember that the code will be
+sent to OpenAI to create embeddings, and this costs money.
+
+example:
+```yaml
+packages:
+  - my_internal_pkg
+  - another.internal.pkg
+```
+
+### Customise the OpenAI parameters
+
+You can modify both the system prompt and the llm args to try out different OpenAI models,
+temperatures, etc. See [Langchain's API ref](https://api.python.langchain.com/en/latest/llms/langchain.llms.openai.BaseOpenAI.html#langchain.llms.openai.BaseOpenAI)
+
+
+## FAQs and Troubleshooting
+
+### How much does this cost
+
+It depends on (a) the model you use and other params such as context length, (b) the number of outputs you generate.
+
+See OpenAI usage here https://platform.openai.com/account/usage
+
+### Debugging with Phoenix
+
+This is an Alpha stage product, and we encourage you to investigate and report bugs
+
+For any errors occurring during the main generation process, it's possible to view traces
+using Phoenix.
+
+1. Start Phoenix with this script
+
+    ```sh
+    #! /usr/bin/env python
+
+    import phoenix
+    phoenix.launch_app()
+
+    input("Press any key to exit...")
+    ```
+1. In another termianl, run nbwrite with the following var set: `export NBWRITE_PHOENIX_TRACE=1`
+1. Check the phoenix traces in the dashboard (default http://127.0.0.1:6060/)
