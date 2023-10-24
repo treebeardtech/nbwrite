@@ -58,6 +58,8 @@ Your outputs will be in your current directory
 
 ### Generate guides for my closed-source code
 
+You will need to install the 'rag' extra `pip install 'nbwrite[rag]'`
+
 By default, OpenAI's models can generate docs based on parametric knowledge.
 This is limited to popular open source libraries.
 
@@ -116,6 +118,8 @@ See OpenAI usage here https://platform.openai.com/account/usage
 ### Debugging with Phoenix
 
 This is an Alpha stage product, and we encourage you to investigate and report bugs
+
+You will need to install the 'tracing' extra `pip install 'nbwrite[tracing]'`
 
 For any errors occurring during the main generation process, it's possible to view traces
 using Phoenix.
