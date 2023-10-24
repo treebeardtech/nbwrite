@@ -1,5 +1,3 @@
-from langchain.prompts import PromptTemplate
-
 DEFAULT_MODEL = "gpt-4-0613"
 DEFAULT_ANYSCALE_MODEL = "codellama/CodeLlama-34b-Instruct-hf"
 TEMPERATURE = 0.1

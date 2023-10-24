@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from typing import List
 
 import click
 import yaml
@@ -33,7 +32,7 @@ def cli():
     "--model",
     default=[DEFAULT_MODEL],
     multiple=True,
-    help="The API names of the models as per https://platform.openai.com/docs/models/ and https://app.endpoints.anyscale.com/",
+    help="The API name of the model as per https://platform.openai.com/docs/models",
 )
 @click.option(
     "--generations",
@@ -44,7 +43,7 @@ def cli():
 def complete(
     spec: Path,
     out: Path,
-    model: List[str],
+    model: str,
     generations: int,
 ):
     """Writes example notebooks which complete a given SPEC
@@ -58,7 +57,7 @@ def complete(
         "steps": spec["steps"],
         "packages": spec["packages"],
         "out": str(out),
-        "models": model,
+        "model": model,
         "generations": generations,
     }
 

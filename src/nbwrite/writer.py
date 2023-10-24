@@ -13,7 +13,6 @@ from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts.chat import HumanMessagePromptTemplate
 from langchain.schema import format_document
 from langchain.schema.messages import SystemMessage
-from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnableParallel
 from nbformat.v4 import (
     new_code_cell,
@@ -40,7 +39,7 @@ class Config:
     steps: List[str]
     packages: List[str]
     out: str
-    models: List[str]
+    model: str
     generations: int
 
 
@@ -54,8 +53,6 @@ def get_llm(model_name: str):
 def gen(
     config: Config,
 ):
-    """Write demo notebooks based on prompts in the notebook and the index"""
-
     now = datetime.now()
 
     if os.getenv("NBWRITE_PHOENIX_TRACE"):
@@ -67,8 +64,6 @@ def gen(
 
         tracer = OpenInferenceTracer()
         LangChainInstrumentor(tracer).instrument()
-
-    llms = {str(mm): get_llm(mm) for mm in range(config.generations)}
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -85,6 +80,7 @@ def gen(
         doc_strings = [format_document(doc, document_prompt) for doc in docs]
         return document_separator.join(doc_strings)
 
+    llm = get_llm(config.model)
     chain = (
         {
             "context": itemgetter("task") | retriever | _combine_documents,
@@ -93,8 +89,7 @@ def gen(
             "packages": itemgetter("packages"),
         }
         | prompt
-        | RunnableParallel(**llms)
-        # | StrOutputParser()
+        | RunnableParallel(**{str(gg): llm for gg in range(config.generations)})
     )
 
     click.echo(f"Invoking LLM")
@@ -122,9 +117,7 @@ def gen(
                     nb.cells.append(new_code_cell(sections[i]))
 
             time = now.strftime("%Y-%m-%d_%H-%M-%S")
-            filename = (
-                Path(config.out) / f"{time}-{config.models[0]}-{generation}.ipynb"
-            )
+            filename = Path(config.out) / f"{time}-{config.model}-{generation}.ipynb"
             string = writes(nb)
             _ = reads(string)
 
