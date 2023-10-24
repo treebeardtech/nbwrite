@@ -18,7 +18,7 @@ jobs:
 #           file: coverage.xml
   pytest:
       strategy:
-        fail-fast: true
+        fail-fast: false
         matrix:
           os:
             - ubuntu-latest

@@ -19,7 +19,7 @@ python = ">=3.8.1,<3.12"
 openai = {extras = ["embeddings"], version = "^0.28.1"}
 pathlib = "^1.0.1"
 click = "^8.1.7"
-langchain = "^0.0.312"
+langchain = {optional = false, version = "^0.0.312", extras = ["openai"]}
 nbformat = "^5.9.2"
 chromadb = "^0.4.14"
 pysqlite3-binary = "^0.5.2"
@@ -27,7 +27,6 @@ arize-phoenix = {extras = ["experimental"], version = "^0.0.49"}
 python-dotenv = "^1.0.0"
 pyyaml = "^6.0.1"
 rich = "^13.6.0"
-tiktoken = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.0"
