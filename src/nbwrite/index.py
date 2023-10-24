@@ -17,10 +17,14 @@ if os.getenv("NBWRITE_OVERRIDE_SQLITE"):
     sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 
-def create_index(pkgs: List[str], retriever_kwargs: Dict[str, Any]):
+def create_index(
+    pkgs: List[str],
+    retriever_kwargs: Dict[str, Any],
+    text_splitter_kwargs: Dict[str, Any],
+):
 
     python_splitter = RecursiveCharacterTextSplitter.from_language(
-        language=Language.PYTHON, chunk_size=2000, chunk_overlap=200
+        language=Language.PYTHON, **text_splitter_kwargs
     )
 
     texts = []

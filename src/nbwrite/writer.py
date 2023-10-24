@@ -56,7 +56,11 @@ def gen(
         ]
     )
 
-    retriever = create_index(config.packages, config.generation.retriever_kwargs)
+    retriever = create_index(
+        config.packages,
+        config.generation.retriever_kwargs,
+        config.generation.text_splitter_kwargs,
+    )
 
     def _combine_documents(
         docs, document_prompt=PromptTemplate.from_template(template="{page_content}"), document_separator="\n\n"  # type: ignore

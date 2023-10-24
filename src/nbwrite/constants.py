@@ -4,6 +4,11 @@ DEFAULT_LLM_KWARGS = {
     "max_tokens": 512,
 }
 
+DEFAULT_TEXT_SPLITTER_KWARGS = {
+    "chunk_size": 2000,
+    "chunk_overlap": 200,
+}
+
 DEFAULT_RETRIEVER_KWARGS = {
     "k": 5,
     "search_type": "mmr",
