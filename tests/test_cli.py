@@ -56,3 +56,33 @@ def test_cli(tmpdir: local):
                     assert "Hello, world!" in "".join(
                         output.text for output in cell.outputs
                     )
+
+
+def test_cli_minimal(tmpdir: local):
+
+    if os.getenv("NBWRITE_DEBUG_MODE"):
+        outdir = "test-debug-out"
+        [pp.unlink() for pp in Path(outdir).glob("*.ipynb")]
+    else:
+        outdir = str(tmpdir)
+    runner = CliRunner()
+    args = [
+        "tests/resources/nbwrite-in/minimal.yaml",
+        "--out",
+        outdir,
+    ]
+
+    shell_fmt = " \\\n  ".join(["nbwrite", *args])
+    logger.warn(f"Running\n{shell_fmt}")
+
+    with patch("nbwrite.writer.get_llm") as mock_get_llm:
+        mock_get_llm.return_value = FakeListLLM(
+            responses=["Code:\n```python\nprint('Hello, world!')\n```\n"]
+        )
+        result = runner.invoke(cli, args)
+
+        assert result.exit_code == 0
+
+        logger.warn(f"Checking outputs in {outdir}")
+        outputs = list(Path(outdir).glob("*.ipynb"))
+        assert len(outputs) == 2

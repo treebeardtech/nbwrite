@@ -20,7 +20,7 @@ class GenerationConfig(BaseModel):
 
 class Config(BaseModel):
     task: str
-    steps: List[str]
-    packages: List[str]
-    out: str
-    generation: GenerationConfig
+    steps: List[str] = []
+    packages: List[str] = []
+    out: str = "nbwrite-out"
+    generation: GenerationConfig = GenerationConfig()

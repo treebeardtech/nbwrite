@@ -15,7 +15,7 @@ from langchain.prompts.chat import HumanMessagePromptTemplate
 from langchain.schema import format_document
 from langchain.schema.messages import SystemMessage
 from langchain.schema.output_parser import StrOutputParser
-from langchain.schema.runnable import RunnableParallel
+from langchain.schema.runnable import RunnableLambda, RunnableParallel
 from nbformat.v4 import (
     new_code_cell,
     new_markdown_cell,
@@ -42,13 +42,19 @@ def gen(
 
     if os.getenv("NBWRITE_PHOENIX_TRACE"):
         click.echo("Enabling Phoenix Trace")
-        from phoenix.trace.langchain import (
-            LangChainInstrumentor,
-            OpenInferenceTracer,
-        )
+        try:
+            from phoenix.trace.langchain import (
+                LangChainInstrumentor,
+                OpenInferenceTracer,
+            )
 
-        tracer = OpenInferenceTracer()
-        LangChainInstrumentor(tracer).instrument()
+            tracer = OpenInferenceTracer()
+            LangChainInstrumentor(tracer).instrument()
+        except ModuleNotFoundError:
+            click.echo(
+                "In order to use Phoenix Tracing you must `pip install 'nbwrite[tracing]'"
+            )
+            exit(1)
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -57,22 +63,26 @@ def gen(
         ]
     )
 
-    retriever = create_index(
-        config.packages,
-        config.generation.retriever_kwargs,
-        config.generation.text_splitter_kwargs,
-    )
-
-    def _combine_documents(
-        docs, document_prompt=PromptTemplate.from_template(template="{page_content}"), document_separator="\n\n"  # type: ignore
-    ):
-        doc_strings = [format_document(doc, document_prompt) for doc in docs]
-        return document_separator.join(doc_strings)
+    if len(config.packages) > 0:
+        try:
+            retriever = create_index(
+                config.packages,
+                config.generation.retriever_kwargs,
+                config.generation.text_splitter_kwargs,
+            )
+            context_chain = itemgetter("task") | retriever | _combine_documents
+        except ModuleNotFoundError:
+            click.echo(
+                "In order to use `packages`, you must `pip install 'nbwrite[rag]'`"
+            )
+            exit(1)
+    else:
+        context_chain = RunnableLambda(lambda _: "none")
 
     llm = get_llm(**config.generation.llm_kwargs) | StrOutputParser()
     chain = (
         {
-            "context": itemgetter("task") | retriever | _combine_documents,
+            "context": context_chain,
             "task": itemgetter("task"),
             "steps": itemgetter("steps"),
             "packages": itemgetter("packages"),
@@ -114,3 +124,10 @@ def gen(
             click.echo(f"Wrote notebook to {filename}")
         except Exception as e:
             logger.error(f"Error writing notebook (generation {generation}): {e}")
+
+
+def _combine_documents(
+    docs, document_prompt=PromptTemplate.from_template(template="{page_content}"), document_separator="\n\n"  # type: ignore
+):
+    doc_strings = [format_document(doc, document_prompt) for doc in docs]
+    return document_separator.join(doc_strings)

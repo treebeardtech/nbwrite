@@ -83,7 +83,7 @@ temperatures, etc. See [Langchain's API ref](https://api.python.langchain.com/en
 Note! This is a confusing use case -- change it to something relevant to your work.
 
 ```yaml
-task: | 
+task: |
   Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application
 steps:
   - Create a hello world notebook using nbformat
@@ -132,3 +132,6 @@ using Phoenix.
     ```
 1. In another termianl, run nbwrite with the following var set: `export NBWRITE_PHOENIX_TRACE=1`
 1. Check the phoenix traces in the dashboard (default http://127.0.0.1:6060/)
+
+
+## TODO make phoenix optional, fix empty packages bug

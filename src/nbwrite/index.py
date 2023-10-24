@@ -1,5 +1,4 @@
 import importlib.util
-import os
 import platform
 from pathlib import Path
 from typing import Any, Dict, List
@@ -9,13 +8,6 @@ from langchain.document_loaders.parsers import LanguageParser
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-
-if platform.system() == "Linux":
-    # https://docs.trychroma.com/troubleshooting#sqlite
-    __import__("pysqlite3")
-    import sys
-
-    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 
 def get_embeddings():
@@ -27,6 +19,12 @@ def create_index(
     retriever_kwargs: Dict[str, Any],
     text_splitter_kwargs: Dict[str, Any],
 ):
+    if platform.system() == "Linux":
+        # https://docs.trychroma.com/troubleshooting#sqlite
+        __import__("pysqlite3")
+        import sys
+
+        sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
     python_splitter = RecursiveCharacterTextSplitter.from_language(
         language=Language.PYTHON, **text_splitter_kwargs
