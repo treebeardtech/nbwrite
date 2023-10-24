@@ -1,0 +1,49 @@
+[tool.poetry]
+authors = ["alex-treebeard <alex@treebeard.io>"]
+description = ""
+homepage = "https://github.com/treebeardtech/nbwrite"
+license = "Apache-2.0"
+name = "nbwrite"
+packages = [
+  {include = "nbwrite", from = "src"},
+]
+readme = "README.md"
+version = "v0.0.1"
+
+[tool.poetry.scripts]
+nbwrite = "nbwrite.cli:cli"
+
+[tool.poetry.dependencies]
+pytest = ">=6.1.0"
+python = ">=3.8.1,<3.12"
+openai = {extras = ["embeddings"], version = "^0.28.1"}
+pathlib = "^1.0.1"
+click = "^8.1.7"
+langchain = {optional = false, version = "^0.0.312", extras = ["openai"]}
+nbformat = "^5.9.2"
+chromadb = "^0.4.14"
+pysqlite3-binary = {version = "^0.5.2", markers = "sys_platform == 'linux'"}
+arize-phoenix = {extras = ["experimental"], version = "^0.0.49"}
+python-dotenv = "^1.0.0"
+pyyaml = "^6.0.1"
+rich = "^13.6.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.0"
+pre-commit = "^2.8.2"
+pytest-cov = "^2.10.1"
+pytest-xdist = "^2.1.0"
+virtualenv = "^20.1.0"
+setuptools = ">65.0.0"
+typing-extensions = "^4.7.1"
+nbmake = "^1.4.5"
+pytest-dotenv = "^0.5.2"
+
+
+[tool.poetry.group.dev.dependencies]
+gradio = "^3.49.0"
+twine = "^4.0.2"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "poetry-core>=1.0.0"]
