@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from operator import itemgetter
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
+import click
 import nbformat
 from langchain.llms.openai import OpenAI
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
@@ -22,32 +23,15 @@ from nbformat.v4 import (
     writes,
 )
 
-from nbwrite.constants import (
-    MAX_TOKENS,
-    SYSTEM_PROMPT,
-    TEMPERATURE,
-    TEMPLATE_STRING,
-)
+from nbwrite.config import Config
+from nbwrite.constants import TEMPLATE_STRING
 from nbwrite.index import create_index
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Config:
-    task: str
-    steps: List[str]
-    packages: List[str]
-    out: str
-    model: str
-    generations: int
-
-
-import click
-
-
-def get_llm(model_name: str):
-    return OpenAI(model_name=model_name, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
+def get_llm(**llm_kwargs: Dict[str, any]):
+    return OpenAI(**llm_kwargs)
 
 
 def gen(
@@ -67,12 +51,12 @@ def gen(
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(content=SYSTEM_PROMPT),
+            SystemMessage(content=config.generation.system_prompt),
             HumanMessagePromptTemplate.from_template(TEMPLATE_STRING),
         ]
     )
 
-    retriever = create_index(config.packages)
+    retriever = create_index(config.packages, config.generation.retriever_kwargs)
 
     def _combine_documents(
         docs, document_prompt=PromptTemplate.from_template(template="{page_content}"), document_separator="\n\n"  # type: ignore
@@ -80,7 +64,7 @@ def gen(
         doc_strings = [format_document(doc, document_prompt) for doc in docs]
         return document_separator.join(doc_strings)
 
-    llm = get_llm(config.model)
+    llm = get_llm(config.generation.llm_kwargs)
     chain = (
         {
             "context": itemgetter("task") | retriever | _combine_documents,
@@ -89,7 +73,7 @@ def gen(
             "packages": itemgetter("packages"),
         }
         | prompt
-        | RunnableParallel(**{str(gg): llm for gg in range(config.generations)})
+        | RunnableParallel(**{str(gg): llm for gg in range(config.generation.count)})
     )
 
     click.echo(f"Invoking LLM")
@@ -117,7 +101,7 @@ def gen(
                     nb.cells.append(new_code_cell(sections[i]))
 
             time = now.strftime("%Y-%m-%d_%H-%M-%S")
-            filename = Path(config.out) / f"{time}-{config.model}-{generation}.ipynb"
+            filename = Path(config.out) / f"{time}-gen-{generation}.ipynb"
             string = writes(nb)
             _ = reads(string)
 

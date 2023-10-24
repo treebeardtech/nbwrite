@@ -1,8 +1,15 @@
-DEFAULT_MODEL = "gpt-4-0613"
-DEFAULT_ANYSCALE_MODEL = "codellama/CodeLlama-34b-Instruct-hf"
-TEMPERATURE = 0.1
-MAX_TOKENS = 512
-SYSTEM_PROMPT = """
+DEFAULT_LLM_KWARGS = {
+    "model": "gpt-4-0613",
+    "temperature": 0.1,
+    "max_tokens": 512,
+}
+
+DEFAULT_RETRIEVER_KWARGS = {
+    "k": 5,
+    "search_type": "mmr",
+}
+
+DEFAULT_SYSTEM_PROMPT = """
 You are a python programmer writing an ipynb document describing a task.
 
 Do install any packages you need using pip
@@ -12,9 +19,6 @@ Write snippets of markdown before each section of code
 Use a help and authoritative tone
 Do not use conversational language
 """
-
-K = 5
-SEARCH_TYPE = "mmr"  # Also test "similarity"
 
 TEMPLATE_STRING = """
 ---------------------------------------------------------------

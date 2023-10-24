@@ -1,15 +1,13 @@
 import importlib.util
 import os
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 from langchain.document_loaders.generic import GenericLoader
 from langchain.document_loaders.parsers import LanguageParser
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-
-from nbwrite.constants import SEARCH_TYPE, K
 
 if os.getenv("NBWRITE_OVERRIDE_SQLITE"):
     # https://docs.trychroma.com/troubleshooting#sqlite
@@ -19,7 +17,7 @@ if os.getenv("NBWRITE_OVERRIDE_SQLITE"):
     sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 
-def create_index(pkgs: List[str], k: int = K, search_type: str = SEARCH_TYPE):
+def create_index(pkgs: List[str], retriever_kwargs: Dict[str, Any]):
 
     python_splitter = RecursiveCharacterTextSplitter.from_language(
         language=Language.PYTHON, chunk_size=2000, chunk_overlap=200
@@ -38,9 +36,6 @@ def create_index(pkgs: List[str], k: int = K, search_type: str = SEARCH_TYPE):
         texts += python_splitter.split_documents(loader.load())
 
     db = Chroma.from_documents(texts, OpenAIEmbeddings(disallowed_special=()))
-    retriever = db.as_retriever(
-        search_type=search_type,
-        search_kwargs={"k": k},
-    )
+    retriever = db.as_retriever(**retriever_kwargs)
 
     return retriever

@@ -18,6 +18,7 @@ def test_complete(tmpdir: local):
 
     if os.getenv("NBWRITE_DEBUG_MODE"):
         outdir = "test-debug-out"
+        [pp.unlink() for pp in Path(outdir).glob("*.ipynb")]
     else:
         outdir = str(tmpdir)
     runner = CliRunner()
@@ -26,8 +27,6 @@ def test_complete(tmpdir: local):
         "tests/resources/nbwrite-in/example.yaml",
         "--out",
         outdir,
-        "--generations",
-        "2",
     ]
 
     shell_fmt = " \\\n  ".join(["nbwrite", *args])
@@ -42,8 +41,8 @@ def test_complete(tmpdir: local):
         assert result.exit_code == 0
 
         logger.warn(f"Checking outputs in {outdir}")
-        outputs = list(Path(tmpdir).glob("*.ipynb"))
-        assert len(outputs) == 1
+        outputs = list(Path(outdir).glob("*.ipynb"))
+        assert len(outputs) == 2
 
         nb = nbformat.read(outputs[0], as_version=4)
 
