@@ -8,7 +8,7 @@ packages = [
   {include = "nbwrite", from = "src"},
 ]
 readme = "README.md"
-version = "v0.1"
+version = "v0.0.1"
 
 [tool.poetry.scripts]
 nbwrite = "nbwrite.cli:cli"
@@ -42,6 +42,7 @@ pytest-dotenv = "^0.5.2"
 
 [tool.poetry.group.dev.dependencies]
 gradio = "^3.49.0"
+twine = "^4.0.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
