@@ -1,4 +1,3 @@
-import json
 import os
 from pathlib import Path
 
@@ -9,8 +8,6 @@ from rich import print
 
 import nbwrite.writer as writer
 from nbwrite.config import Config
-
-load_dotenv()
 
 
 @click.command()
@@ -43,4 +40,5 @@ def cli(
 
 
 if __name__ == "__main__":
+    load_dotenv()
     cli()
