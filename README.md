@@ -2,10 +2,10 @@
 
 nbwrite writes notebook-based documentation for you
 
-Tutorials, guides, demos, examples -- it creates runnable and testable python code which
-give your users critical support in using your product.
+{{ intro }}
 
-To write your first notebook, create an ipynb file and use the cli like so
+
+## Quick start
 
 ```python
 nbwrite \
@@ -19,9 +19,10 @@ nbwrite \
   --context another_lib
 ```
 
-TODOs before releasing
+## Guides
 
-- basic eval/testing
-- document setup
+{{ how to write a spec file }}
 
 ## Data Security
+
+{embeddings and openai}
