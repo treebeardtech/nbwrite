@@ -17,6 +17,7 @@ jobs:
       - run: poetry build
       - run: pip install 'pytest==7.1'
       - run: pip install dist/*gz --force-reinstall
+      - run: pip install nbmake nbformat nbclient # necessary for running smoke test
       - run: nbwrite tests/resources/nbwrite-in/example.yaml
       - run: pip install dist/*whl --force-reinstall
       - run: nbwrite tests/resources/nbwrite-in/example.yaml
