@@ -62,7 +62,7 @@ By default, OpenAI's models can generate docs based on parametric knowledge.
 This is limited to popular open source libraries.
 
 The `packages` input in the spec file can be used to reference Python packages in your
-current environment, which will be indexed in a local Vector DB. Code relevant to the 
+current environment, which will be indexed in a local Vector DB. Code relevant to the
 task is then stuffed into the prompt.
 
 You can pass in an arbitrary number of packages, just remember that the code will be
