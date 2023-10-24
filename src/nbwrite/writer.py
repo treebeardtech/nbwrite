@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from langchain.prompts.chat import HumanMessagePromptTemplate
 from langchain.schema import format_document
 from langchain.schema.messages import SystemMessage
 from langchain.schema.output_parser import StrOutputParser
+from langchain.schema.runnable import RunnableParallel
 from nbformat.v4 import (
     new_code_cell,
     new_markdown_cell,
@@ -28,6 +30,8 @@ from nbwrite.constants import (
     TEMPLATE_STRING,
 )
 from nbwrite.index import create_index
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -64,7 +68,7 @@ def gen(
         tracer = OpenInferenceTracer()
         LangChainInstrumentor(tracer).instrument()
 
-    llms = {mm: get_llm(mm) for mm in config.models}
+    llms = {str(mm): get_llm(mm) for mm in range(config.generations)}
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -81,9 +85,6 @@ def gen(
         doc_strings = [format_document(doc, document_prompt) for doc in docs]
         return document_separator.join(doc_strings)
 
-    llm = llms[
-        config.models[0]
-    ]  # TODO make parallel and combine all generations for all models
     chain = (
         {
             "context": itemgetter("task") | retriever | _combine_documents,
@@ -92,8 +93,8 @@ def gen(
             "packages": itemgetter("packages"),
         }
         | prompt
-        | llm
-        | StrOutputParser()
+        | RunnableParallel(**llms)
+        # | StrOutputParser()
     )
 
     click.echo(f"Invoking LLM")
@@ -105,20 +106,29 @@ def gen(
         }
     )
 
-    nb = new_notebook()
+    out_dir = Path(config.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    sections = re.split(r"```(?:python\n)?", code_out)
+    for generation in code_out.keys():
+        try:
+            nb = new_notebook()
 
-    for i in range(0, len(sections)):
-        if i % 2 == 0:
-            nb.cells.append(new_markdown_cell(sections[i]))
-        else:
-            nb.cells.append(new_code_cell(sections[i]))
+            sections = re.split(r"```(?:python\n)?", code_out[generation])
 
-    time = now.strftime("%Y-%m-%d_%H-%M-%S")
-    filename = Path(config.out) / f"{time}-{config.models[0]}.ipynb"
-    string = writes(nb)
-    _ = reads(string)
+            for i in range(0, len(sections)):
+                if i % 2 == 0:
+                    nb.cells.append(new_markdown_cell(sections[i]))
+                else:
+                    nb.cells.append(new_code_cell(sections[i]))
 
-    nbformat.write(nb, filename)
-    click.echo(f"Wrote notebook to {filename}")
+            time = now.strftime("%Y-%m-%d_%H-%M-%S")
+            filename = (
+                Path(config.out) / f"{time}-{config.models[0]}-{generation}.ipynb"
+            )
+            string = writes(nb)
+            _ = reads(string)
+
+            nbformat.write(nb, (filename.as_posix()))
+            click.echo(f"Wrote notebook to {filename}")
+        except Exception as e:
+            logger.error(f"Error writing notebook (generation {generation}): {e}")

@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -14,12 +15,19 @@ logger = logging.getLogger(__name__)
 
 
 def test_complete(tmpdir: local):
+
+    if os.getenv("NBWRITE_DEBUG_MODE"):
+        outdir = "test-debug-out"
+    else:
+        outdir = str(tmpdir)
     runner = CliRunner()
     args = [
         "complete",
         "tests/resources/nbwrite-in/example.yaml",
         "--out",
-        str(tmpdir),
+        outdir,
+        "--generations",
+        "2",
     ]
 
     shell_fmt = " \\\n  ".join(["nbwrite", *args])
@@ -33,7 +41,7 @@ def test_complete(tmpdir: local):
 
         assert result.exit_code == 0
 
-        logger.warn(f"Checking outputs in {tmpdir}")
+        logger.warn(f"Checking outputs in {outdir}")
         outputs = list(Path(tmpdir).glob("*.ipynb"))
         assert len(outputs) == 1
 
