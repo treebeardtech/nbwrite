@@ -11,7 +11,6 @@
       "module": "nbwrite.cli",
       "justMyCode": false,
       "args": [
-        "complete",
         "tests/resources/nbwrite-in/example.yaml"
       ]
     }

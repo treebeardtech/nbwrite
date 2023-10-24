@@ -25,7 +25,7 @@ def cli(
     spec: Path,
     out: Path,
 ):
-    """Writes example notebooks which complete a given SPEC
+    """Writes example notebooks which implement a given SPEC
 
     e.g. nbwrite "./spec.yaml"
     """
