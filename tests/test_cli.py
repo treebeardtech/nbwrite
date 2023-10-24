@@ -15,7 +15,7 @@ from nbwrite.cli import cli
 logger = logging.getLogger(__name__)
 
 
-def test_complete(tmpdir: local):
+def test_cli(tmpdir: local):
 
     if os.getenv("NBWRITE_DEBUG_MODE"):
         outdir = "test-debug-out"
@@ -24,7 +24,6 @@ def test_complete(tmpdir: local):
         outdir = str(tmpdir)
     runner = CliRunner()
     args = [
-        "complete",
         "tests/resources/nbwrite-in/example.yaml",
         "--out",
         outdir,

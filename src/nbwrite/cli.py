@@ -13,13 +13,7 @@ from nbwrite.config import Config
 load_dotenv()
 
 
-@click.group()
-def cli():
-    """Command line interface for nbwrite."""
-    pass
-
-
-@cli.command()
+@click.command()
 @click.argument(
     "spec",
     type=click.Path(path_type=Path, dir_okay=False, file_okay=True),
@@ -30,13 +24,13 @@ def cli():
     default="nbwrite-out",
     help="The directory to write the generated notebooks to",
 )
-def complete(
+def cli(
     spec: Path,
     out: Path,
 ):
     """Writes example notebooks which complete a given SPEC
 
-    e.g. nbwrite complete "./spec.yaml"
+    e.g. nbwrite "./spec.yaml"
     """
 
     spec = yaml.safe_load(spec.read_text())
