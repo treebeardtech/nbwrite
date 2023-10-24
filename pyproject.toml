@@ -22,7 +22,7 @@ click = "^8.1.7"
 langchain = {optional = false, version = "^0.0.312", extras = ["openai"]}
 nbformat = "^5.9.2"
 chromadb = "^0.4.14"
-pysqlite3-binary = "^0.5.2"
+pysqlite3-binary = {version = "^0.5.2", markers = "sys_platform == 'linux'"}
 arize-phoenix = {extras = ["experimental"], version = "^0.0.49"}
 python-dotenv = "^1.0.0"
 pyyaml = "^6.0.1"

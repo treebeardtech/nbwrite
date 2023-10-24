@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import platform
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -9,7 +10,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 
-if os.getenv("NBWRITE_OVERRIDE_SQLITE"):
+if platform.system() == "Linux":
     # https://docs.trychroma.com/troubleshooting#sqlite
     __import__("pysqlite3")
     import sys
