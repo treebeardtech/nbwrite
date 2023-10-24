@@ -80,6 +80,30 @@ packages:
 You can modify both the system prompt and the llm args to try out different OpenAI models,
 temperatures, etc. See [Langchain's API ref](https://api.python.langchain.com/en/latest/llms/langchain.llms.openai.BaseOpenAI.html#langchain.llms.openai.BaseOpenAI)
 
+Note! This is a confusing use case -- change it to something relevant to your work.
+
+```yaml
+task: | 
+  Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application
+steps:
+  - Create a hello world notebook using nbformat
+  - Use nbmake's NotebookRun class to execute it from a Python application
+  - Check the output notebook printed what we were expecting
+packages:
+  - nbmake
+  - nbformat
+  - nbclient
+generation:
+  count: 2 # number of notebooks to generate
+  # system_prompt:
+  llm_kwargs:
+    # https://api.python.langchain.com/en/latest/llms/langchain.llms.openai.BaseOpenAI.html#langchain.llms.openai.BaseOpenAI
+    model_name: gpt-3.5-turbo # The API name of the model as per https://platform.openai.com/docs/models
+    temperature: 0.5
+  retriever_kwargs:
+    k: 3
+    search_type: similarity
+```
 
 ## FAQs and Troubleshooting
 
