@@ -136,6 +136,3 @@ using Phoenix.
     ```
 1. In another termianl, run nbwrite with the following var set: `export NBWRITE_PHOENIX_TRACE=1`
 1. Check the phoenix traces in the dashboard (default http://127.0.0.1:6060/)
-
-
-## TODO make phoenix optional, fix empty packages bug
