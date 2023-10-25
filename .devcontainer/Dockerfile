@@ -7,5 +7,5 @@ RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "source /usr/local/shar
 USER vscode
 RUN pip3 --disable-pip-version-check --no-cache-dir install -U \
   'poetry==1.6.1' \
-  'pip==23.12.1'
+  'pip==23.2.1'
 RUN npm install -g @devcontainers/cli@v0.30.0
