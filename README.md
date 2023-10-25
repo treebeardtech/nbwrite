@@ -1,4 +1,4 @@
-# nbwrite
+# 🤖 nbwrite
 
 **Note: This is an experimental use case for LLMs, the output may at times be unhelpful or inappropriate**
 
