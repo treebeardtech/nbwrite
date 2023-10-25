@@ -10,14 +10,14 @@
     }
   },
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,consistency=cached",
+    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
+    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+    // "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,consistency=cached",
     // Add the paths below if you know you use them on your local machine and want them to be available in your container.
-    //
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.zshrc,target=/home/vscode/.zshrc,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.zsh_history,target=/home/vscode/.zsh_history,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.zshenv,target=/home/vscode/.zshenv,type=bind,consistency=cached",
+    // //
+    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.zshrc,target=/home/vscode/.zshrc,type=bind,consistency=cached",
+    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.zsh_history,target=/home/vscode/.zsh_history,type=bind,consistency=cached",
+    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.zshenv,target=/home/vscode/.zshenv,type=bind,consistency=cached",
     // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.kube/config,target=/home/vscode/.kube/config,type=bind,consistency=cached",
     // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.kc,target=/home/vscode/.kc,type=bind,consistency=cached",
     // "source=${localEnv:HOME}${localEnv:USERPROFILE}/.azure/msal_http_cache.bin,target=/home/vscode/.azure/msal_http_cache.bin,type=bind,consistency=cached",
