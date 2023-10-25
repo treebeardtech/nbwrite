@@ -22,7 +22,7 @@ jobs:
         env:
           OPENAI_API_KEY: '${{ secrets.OPENAI_API_KEY }}'
       - run: pip install dist/*whl --force-reinstall
-      - run: nbwrite tests/resources/nbwrite-in/example.yaml
+      - run: nbwrite tests/resources/nbwrite-in/minimal.yaml
         env:
           OPENAI_API_KEY: '${{ secrets.OPENAI_API_KEY }}'
       - run: pip install twine==4.0.1
