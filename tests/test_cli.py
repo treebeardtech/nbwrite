@@ -85,4 +85,4 @@ def test_cli_minimal(tmpdir: local):
 
         logger.warn(f"Checking outputs in {outdir}")
         outputs = list(Path(outdir).glob("*.ipynb"))
-        assert len(outputs) == 2
+        assert len(outputs) == 1

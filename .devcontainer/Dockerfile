@@ -6,6 +6,6 @@ ARG NODE_VERSION="lts/*"
 RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "source /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 USER vscode
 RUN pip3 --disable-pip-version-check --no-cache-dir install -U \
-  'poetry==1.1.13' \
-  'pip==22.1.2'
+  'poetry==1.6.1' \
+  'pip==23.2.1'
 RUN npm install -g @devcontainers/cli@v0.30.0

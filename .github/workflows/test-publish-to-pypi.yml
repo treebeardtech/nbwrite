@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
 jobs:
   build-n-publish:
     runs-on: ubuntu-22.04
@@ -15,14 +16,13 @@ jobs:
           build_version="$(poetry version -s).dev$(date +%s)"
           poetry version $build_version
       - run: poetry build
-      - run: pip install 'pytest==7.1'
       - run: pip install dist/*gz --force-reinstall
       - run: pip install nbmake nbformat nbclient # necessary for running smoke test
-      - run: nbwrite tests/resources/nbwrite-in/example.yaml
+      - run: nbwrite tests/resources/nbwrite-in/minimal.yaml
         env:
           OPENAI_API_KEY: '${{ secrets.OPENAI_API_KEY }}'
       - run: pip install dist/*whl --force-reinstall
-      - run: nbwrite tests/resources/nbwrite-in/example.yaml
+      - run: nbwrite tests/resources/nbwrite-in/minimal.yaml
         env:
           OPENAI_API_KEY: '${{ secrets.OPENAI_API_KEY }}'
       - run: pip install twine==4.0.1

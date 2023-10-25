@@ -12,7 +12,6 @@ jobs:
       - run: npm install -g @devcontainers/cli@v0.30.0
       - run: devcontainer up --workspace-folder=.
       - run: devcontainer exec --workspace-folder=. poetry run pre-commit run --verbose --all-files
-      - run: devcontainer exec --workspace-folder=. poetry run pytest --cov-report=xml --cov=src
       - uses: codecov/codecov-action@v1
         with:
           file: coverage.xml
@@ -25,8 +24,8 @@ jobs:
             - macos-latest
           python-version:
             - "3.8"
-            # - "3.9"
-            # - "3.10"
+            - "3.9"
+            - "3.10"
             - "3.11"
       runs-on: ${{ matrix.os }}
       steps:
@@ -35,10 +34,8 @@ jobs:
           with:
             python-version: ${{ matrix.python-version }}
         - run: pip install poetry
-        - run: poetry install
+        - run: poetry install --all-extras
         - run: poetry run pytest --cov-report=xml --cov=src
         - uses: codecov/codecov-action@v1
           with:
             file: coverage.xml
-
-# TODO README and workflows for e2e test, package release, devcon build
