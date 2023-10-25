@@ -35,13 +35,7 @@ export OPENAI_API_KEY='sk-xxxx'
 e.g. nbwrite/example1.yaml:
 ```yaml
 task: |
-  Create a hello world notebook 'x.ipynb', use nbmake's NotebookRun class to test it from a Python application
-steps:
-  - Create a hello world notebook using nbformat
-  - Use nbmake's NotebookRun class to execute it from a Python application
-  - Check the output notebook printed what we were expecting
-packages:
-  - nbmake
+  Plot the iris dataset using pandas
 generation:
   count: 2
 ```

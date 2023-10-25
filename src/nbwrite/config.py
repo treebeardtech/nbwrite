@@ -11,7 +11,7 @@ from nbwrite.constants import (
 
 
 class GenerationConfig(BaseModel):
-    count: int = 2
+    count: int = 1
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     llm_kwargs: Dict[str, Any] = DEFAULT_LLM_KWARGS
     retriever_kwargs: Dict[str, Any] = DEFAULT_RETRIEVER_KWARGS
