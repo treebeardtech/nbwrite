@@ -34,7 +34,7 @@ jobs:
           with:
             python-version: ${{ matrix.python-version }}
         - run: pip install poetry
-        - run: poetry install
+        - run: poetry install --all-extras
         - run: poetry run pytest --cov-report=xml --cov=src
         - uses: codecov/codecov-action@v1
           with:
